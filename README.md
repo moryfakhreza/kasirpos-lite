@@ -58,10 +58,7 @@ php -S localhost:8000
 
 ---
 
-**BAGIAN 3 — paste terakhir:**
 
-```markdown
----
 
 ## 📱 Built on Mobile
 
