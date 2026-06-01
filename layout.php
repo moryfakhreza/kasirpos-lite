@@ -16,6 +16,7 @@
         <a href="/pages/products.php">Produk</a>
         <a href="/pages/add.php">Tambah</a>
         <a href="/pages/cart.php">Cart</a>
+        <a href="/pages/transactions.php">Transaksi</a>
     </div>
 
     <!-- MAIN CONTENT -->

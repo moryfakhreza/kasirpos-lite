@@ -1,18 +1,25 @@
 <?php
-require '../config/db.php';
 session_start();
+require '../config/db.php';
 
+/* =========================
+   INIT CART
+========================= */
 if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
 
-// ADD TO CART (AJAX SIMPLE)
+/* =========================
+   ADD TO CART
+========================= */
 if (isset($_GET['add'])) {
     $id = $_GET['add'];
 
     $stmt = $db->prepare("SELECT * FROM products WHERE id=?");
     $stmt->execute([$id]);
-    $p = $stmt->fetch();
+    $p = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$p) exit;
 
     if (isset($_SESSION['cart'][$id])) {
         $_SESSION['cart'][$id]['qty'] += 1;
@@ -25,22 +32,21 @@ if (isset($_GET['add'])) {
     exit;
 }
 
-// REMOVE
-if (isset($_GET['remove'])) {
-    unset($_SESSION['cart'][$_GET['remove']]);
-    echo json_encode($_SESSION['cart']);
-    exit;
-}
-
-// UPDATE QTY
+/* =========================
+   UPDATE QTY
+========================= */
 if (isset($_GET['update'])) {
     $id = $_GET['id'];
     $type = $_GET['type'];
 
-    if ($type == "plus") {
-        $_SESSION['cart'][$id]['qty']++;
-    } else {
-        $_SESSION['cart'][$id]['qty']--;
+    if (isset($_SESSION['cart'][$id])) {
+
+        if ($type == "plus") {
+            $_SESSION['cart'][$id]['qty']++;
+        } else {
+            $_SESSION['cart'][$id]['qty']--;
+        }
+
         if ($_SESSION['cart'][$id]['qty'] <= 0) {
             unset($_SESSION['cart'][$id]);
         }
@@ -50,6 +56,58 @@ if (isset($_GET['update'])) {
     exit;
 }
 
+/* =========================
+   REMOVE ITEM
+========================= */
+if (isset($_GET['remove'])) {
+    unset($_SESSION['cart'][$_GET['remove']]);
+    echo json_encode($_SESSION['cart']);
+    exit;
+}
+
+/* =========================
+   CHECKOUT TRANSACTION
+========================= */
+if (isset($_POST['checkout'])) {
+
+    $total = 0;
+
+    foreach ($_SESSION['cart'] as $item) {
+        $total += $item['price'] * $item['qty'];
+    }
+
+    // insert transaction
+    $db->prepare("INSERT INTO transactions (total) VALUES (?)")
+       ->execute([$total]);
+
+    $transaction_id = $db->lastInsertId();
+
+    // insert items + reduce stock
+    foreach ($_SESSION['cart'] as $id => $item) {
+
+        $db->prepare("INSERT INTO transaction_items 
+            (transaction_id, product_id, qty, price)
+            VALUES (?, ?, ?, ?)")
+        ->execute([
+            $transaction_id,
+            $id,
+            $item['qty'],
+            $item['price']
+        ]);
+
+        $db->prepare("UPDATE products SET stock = stock - ? WHERE id=?")
+        ->execute([$item['qty'], $id]);
+    }
+
+    $_SESSION['cart'] = [];
+
+    header("Location: products.php");
+    exit;
+}
+
+/* =========================
+   GET PRODUCTS
+========================= */
 $products = $db->query("SELECT * FROM products")->fetchAll(PDO::FETCH_ASSOC);
 
 ob_start();
@@ -57,50 +115,50 @@ ob_start();
 
 <div class="pos-layout">
 
-    <!-- PRODUCTS -->
+    <!-- PRODUCT AREA -->
     <div class="product-area">
-        <h1>Produk</h1>
+
+        <h1>POS Kasir</h1>
 
         <div class="product-grid">
+
             <?php foreach ($products as $p): ?>
+
             <div class="product-card">
-                <h3><?= $p['name'] ?></h3>
-                <p>Rp <?= $p['price'] ?></p>
+                <h3><?= htmlspecialchars($p['name']) ?></h3>
+                <p>Rp <?= number_format($p['price']) ?></p>
+                <p>Stok: <?= $p['stock'] ?></p>
 
                 <button class="btn btn-cart"
                         onclick="addToCart(<?= $p['id'] ?>)">
-                    + Add
+                    + Add to Cart
                 </button>
             </div>
+
             <?php endforeach; ?>
+
         </div>
     </div>
 
     <!-- CART SIDEBAR -->
     <div class="cart-sidebar">
         <h2>Cart</h2>
+
         <div id="cartBox"></div>
 
-        <h3 id="total">Total: 0</h3>
+        <h3 id="total">Total: Rp 0</h3>
 
-        <button class="btn-primary" onclick="checkout()">
-            Checkout
-        </button>
+        <form method="POST">
+            <button class="btn-primary" name="checkout">
+                Checkout
+            </button>
+        </form>
     </div>
 
 </div>
 
 <script>
-let cart = {};
-
-function addToCart(id) {
-    fetch("?add=" + id)
-    .then(res => res.json())
-    .then(data => {
-        cart = data;
-        renderCart();
-    });
-}
+let cart = <?php echo json_encode($_SESSION['cart']); ?>;
 
 function renderCart() {
     let html = "";
@@ -113,12 +171,16 @@ function renderCart() {
 
         html += `
         <div class="cart-item">
-            <p>${item.name}</p>
-            <p>Rp ${item.price}</p>
+            <div>
+                <b>${item.name}</b><br>
+                Rp ${item.price}
+            </div>
 
-            <button onclick="updateQty(${id},'minus')">-</button>
-            ${item.qty}
-            <button onclick="updateQty(${id},'plus')">+</button>
+            <div>
+                <button onclick="updateQty(${id},'minus')">-</button>
+                ${item.qty}
+                <button onclick="updateQty(${id},'plus')">+</button>
+            </div>
 
             <button onclick="removeItem(${id})">x</button>
         </div>
@@ -129,8 +191,8 @@ function renderCart() {
     document.getElementById("total").innerText = "Total: Rp " + total;
 }
 
-function updateQty(id,type){
-    fetch("?update=1&id="+id+"&type="+type)
+function addToCart(id) {
+    fetch("?add=" + id)
     .then(res => res.json())
     .then(data => {
         cart = data;
@@ -138,8 +200,8 @@ function updateQty(id,type){
     });
 }
 
-function removeItem(id){
-    fetch("?remove="+id)
+function updateQty(id, type) {
+    fetch("?update=1&id=" + id + "&type=" + type)
     .then(res => res.json())
     .then(data => {
         cart = data;
@@ -147,9 +209,16 @@ function removeItem(id){
     });
 }
 
-function checkout(){
-    alert("Checkout berhasil (nanti kita simpan DB)");
+function removeItem(id) {
+    fetch("?remove=" + id)
+    .then(res => res.json())
+    .then(data => {
+        cart = data;
+        renderCart();
+    });
 }
+
+renderCart();
 </script>
 
 <?php

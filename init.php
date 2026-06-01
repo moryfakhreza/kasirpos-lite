@@ -2,19 +2,29 @@
 require 'config/db.php';
 
 $db->exec("DROP TABLE IF EXISTS products");
+$db->exec("DROP TABLE IF EXISTS transactions");
+$db->exec("DROP TABLE IF EXISTS transaction_items");
 
 $db->exec("CREATE TABLE products (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    price INTEGER NOT NULL,
-    stock INTEGER NOT NULL
+    name TEXT,
+    price INTEGER,
+    stock INTEGER
 )");
 
-echo "Database reset & siap!";
-
-$db->exec("CREATE TABLE IF NOT EXISTS transactions (
+$db->exec("CREATE TABLE transactions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    total INTEGER NOT NULL,
+    total INTEGER,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 )");
+
+$db->exec("CREATE TABLE transaction_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    transaction_id INTEGER,
+    product_id INTEGER,
+    qty INTEGER,
+    price INTEGER
+)");
+
+echo "DB siap POS PRO";
 ?>
