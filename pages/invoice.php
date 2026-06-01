@@ -1,4 +1,5 @@
 <?php
+require_once '../auth.php';
 require '../config/db.php';
 
 $id = $_GET['id'];

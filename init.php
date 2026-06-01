@@ -26,5 +26,15 @@ $db->exec("CREATE TABLE transaction_items (
     price INTEGER
 )");
 
-echo "DB siap POS PRO";
+$db->exec("CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE,
+    password TEXT,
+    role TEXT
+)");
+
+$db->exec("INSERT OR IGNORE INTO users (username, password, role)
+VALUES ('admin', 'admin123', 'admin')");
+
+echo "DB siap Mas Bro";
 ?>
