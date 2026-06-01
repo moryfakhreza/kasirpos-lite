@@ -14,11 +14,6 @@
 
 
 
-![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
-
-
-
-
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=flat-square)
 
 
@@ -27,42 +22,71 @@
 
 ## 📌 Overview
 
-KasirPOS Lite is a lightweight but fully-featured POS (Point of Sale) web application designed for small-to-medium businesses. Built without any framework — pure PHP, pure logic.
+KasirPOS Lite is a lightweight but fully-featured POS web application designed for small-to-medium businesses. Built without any framework — pure PHP, pure logic.
 
 ---
 
 ## ✨ Features
 
-### 🔐 Authentication & Role System
-- Session-based login & logout
-- Role-based access control: **Admin** & **Kasir**
-- Protected pages with auth guard
-
-### 🛒 POS & Cart System
-- Real-time cart (Fetch API)
-- Add, update quantity, remove items
-- Session-based cart management
-- One-click checkout
-
-### 💳 Transaction & Invoice
-- Auto-generate transaction ID
-- Auto-calculate total & stock deduction
-- Full invoice detail per transaction
-- Transaction history with date filter
-
-### 📊 Dashboard Analytics
-- Total products, transactions & revenue
-- Daily revenue breakdown
-- Analytics table overview
-
-### 📦 Product Management
-- Full CRUD (Create, Read, Update, Delete)
-- Stock & price management
-- Modern card/table UI
-
----
+- 🔐 Role-based auth (Admin & Kasir)
+- 🛒 Real-time cart with Fetch API
+- 💳 Auto-generate invoice & transaction ID
+- 📊 Dashboard analytics & daily revenue
+- 📦 Full product CRUD + stock management
+- 🧾 Transaction history with date filter
+- ---
 
 ## 🛠️ Tech Stack
 
 | Layer | Technology |
 |---|---|
+| Backend | PHP Native |
+| Database | SQLite (PDO) |
+| Frontend | HTML, CSS, Bootstrap |
+| Auth | Session-based |
+| Dev Environment | Termux + Acode (Mobile) |
+| Version Control | Git + GitHub |
+
+---
+
+## 🚀 Installation
+
+```bash
+git clone https://github.com/moryfakhreza/kasirpos-lite.git
+cd kasirpos-lite
+php -S localhost:8000
+
+---
+
+**BAGIAN 3 — paste terakhir:**
+
+```markdown
+---
+
+## 📱 Built on Mobile
+
+> Seluruh project ini dibuat dari smartphone (Oppo A16) menggunakan:
+> - **Termux** — Linux terminal di Android
+> - **Acode** — Mobile code editor  
+> - **GitHub** — Version control
+>
+> Proof that limitations don't stop execution. 🔥
+
+---
+
+## 🙋 Author
+
+**Fahry Fakhreza**  
+Junior Web Developer · IT Support · Sales
+
+[
+
+![GitHub](https://img.shields.io/badge/GitHub-moryfakhreza-181717?style=flat-square&logo=github)
+
+](https://github.com/moryfakhreza/kasirpos-lite)
+
+---
+
+## 📄 License
+
+MIT License — free to use, modify, and distribute.
