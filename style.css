@@ -222,3 +222,31 @@ input:focus {
     margin: 0 3px;
     padding: 3px 6px;
 }
+
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transition: 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+h1 {
+    color: #111827;
+}
+
+h2 {
+    margin: 5px 0;
+    color: #111827;
+}
